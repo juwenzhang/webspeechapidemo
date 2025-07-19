@@ -22,13 +22,13 @@ const SpeechRecognitionComponent: React.FC = () => {
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
 
   // 语音识别实例引用
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any | null>(null);
   // 语音合成实例引用
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
   // 初始化语音识别（兼容浏览器前缀）
   useEffect(() => {
-    const SpeechRecognition = (window as Window).SpeechRecognition || (window as Window).webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       setStatus('当前浏览器不支持 Web Speech API');
       return;
@@ -46,10 +46,10 @@ const SpeechRecognitionComponent: React.FC = () => {
     Object.assign(recognition, recognitionOptions);
 
     // 识别结果回调
-    recognition.onresult = (event: unknown) => {
+    recognition.onresult = (event: any) => {
 
       const result = Array.from(event.results)
-        .map((res) => res[0])
+        .map((res) => (res as SpeechRecognitionResult)[0])
         .map((res) => res.transcript)
         .join('');
       setTranscript(result);
@@ -68,7 +68,7 @@ const SpeechRecognitionComponent: React.FC = () => {
       // if (isListening) recognition.start();
     };
 
-    recognition.onerror = (event: unknown) => {
+    recognition.onerror = (event: any) => {
       setStatus(`识别错误: ${event}`);
       console.error('语音识别错误:', event);
     };
