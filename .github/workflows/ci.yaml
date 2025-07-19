@@ -1,0 +1,48 @@
+name: ci && cd
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: 'read'
+      pages: 'write'
+      id-token: 'write'
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: install dependencies
+        run: |
+          npm install
+          npm run build
+        
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
+          TOKEN: ${{ secrets.TOKEN }} 
+          BRANCH: gh-pages
+          FOLDER: build
+          CLEAN: true
