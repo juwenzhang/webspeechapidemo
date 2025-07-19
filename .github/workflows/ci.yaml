@@ -44,5 +44,5 @@ jobs:
         with:
           TOKEN: ${{ secrets.TOKEN }} 
           BRANCH: gh-pages
-          FOLDER: build
+          FOLDER: dist
           CLEAN: true
