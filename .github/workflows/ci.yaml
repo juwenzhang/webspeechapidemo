@@ -1,48 +1,38 @@
-name: ci && cd
+name: deploy to GitHub Pages
 
 on:
   push:
     branches:
       - master
-      - main
-  
   pull_request:
     branches:
       - master
-      - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: 'read'
-      pages: 'write'
-      id-token: 'write'
-    
+      contents: write
+      pages: write
+      id-token: write
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: cache node_modules
-        uses: actions/cache@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
+          node-version: '23'
 
-      - name: install dependencies
-        run: |
-          npm install
-          npm run build
-        
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@releases/v3
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          TOKEN: ${{ secrets.TOKEN }} 
-          BRANCH: gh-pages
-          FOLDER: dist
-          CLEAN: true
+          github_token: ${{ secrets.TOKEN }}
+          publish_dir: ./dist/
